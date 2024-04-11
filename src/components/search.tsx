@@ -3,15 +3,44 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import firebase_app from '@/firebaseConfig';
-import { getFirestore, addDoc, collection,doc,updateDoc,getDoc,where,getDocs,query,FieldValue } from "firebase/firestore"; 
+import { getFirestore, addDoc, collection,doc,updateDoc,getDoc,where,getDocs,query,FieldValue,onSnapshot } from "firebase/firestore"; 
 import {toast} from 'react-toastify';
 import { set } from 'firebase/database';
+import { useEffect } from 'react';
 
 
 export function Search({ setTeams,setSearchText,searchText}: any) {
   const [loading, setLoading] = useState(false);
   const [flag, setFlag] = useState(false);
-  const [voteLoading, setVoteLoading] = useState(false);
+  const [voteLoading, setVoteLoading] = useState(true);
+
+
+
+  useEffect(() => {
+    const db = getFirestore();
+    setVoteLoading(true);
+    const gameStatusDocRef = doc(db, 'GameStatus', 'Status');
+
+    const unsubscribe = onSnapshot(gameStatusDocRef, (gameStatusDocSnap) => {
+      if (gameStatusDocSnap.exists()) {
+        const currentStatus = gameStatusDocSnap.data().voting;
+        const isVoting = !!currentStatus; // Convert to boolean
+
+        // Update flag based on voting status
+        setFlag(isVoting);
+        setVoteLoading(false);
+      } else {
+        setFlag(false);
+        setVoteLoading(false); 
+        // Document does not exist or no voting status
+      }
+
+    });
+
+    return () => {
+      unsubscribe(); // Cleanup the listener when component unmounts
+    };
+  }, []);
 
 
 
@@ -119,21 +148,24 @@ export function Search({ setTeams,setSearchText,searchText}: any) {
         onChange={handleInputChange}
       />
      <Button
-  
-  onClick={()=>{
-    confirm("Are you sure you want to toggle voting?") &&
-    togglePolling()
-    
+  onClick={() => {
+    if (confirm("Are you sure you want to toggle voting?")) {
+      togglePolling();
+    }
   }}
   disabled={voteLoading} // Disable the button when loading is true
-  style={{ backgroundColor: voteLoading ? 'grey' : "green" }} // Set grey background when loading
->  {!voteLoading &&<>
-  {flag ? 'Stop Voting' : 'Start Voting'}
-
-</> }
-{voteLoading && 'Loading...'}
-  
+  style={{
+    backgroundColor: voteLoading ? 'grey' : (flag ? 'red' : 'green'), // Set red background when flag is true
+    color: 'white', // Optional: Set text color to white for better contrast
+  }}
+>
+  {!voteLoading ? (
+    flag ? 'Stop Voting' : 'Start Voting'
+  ) : (
+    'Loading...'
+  )}
 </Button>
+
 
      <Button
   variant='destructive'

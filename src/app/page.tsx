@@ -39,7 +39,7 @@ const filteredUsers = teams.filter((team:any) => {
   if(teams.length === 0) return false;
   return (
     
-    team.TeamName.toLowerCase().includes(lowerSearchText) 
+    team.TeamName?.toLowerCase().includes(lowerSearchText) 
     // user.Email.toString().includes(lowerSearchText)
   );
 });

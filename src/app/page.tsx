@@ -62,10 +62,10 @@ const fetchDataFromFirestore = async () => {
       const playersCollectionRef = collection(db, "Teams", teamId, "players");
 
       // Query to check if there are any documents in the Players subcollection
-      const playersQuerySnapshot = await getDocs(playersCollectionRef);
+      const playersQuerySnapshot:any = await getDocs(playersCollectionRef);
 
       // Check if Players subcollection has any documents
-      if (!playersQuerySnapshot.empty) {
+      if (playersQuerySnapshot.size > 1) {
         filteredTeams.push({ ...teamData, id: teamId }); // Include team data along with its id
       }
     }

@@ -31,6 +31,7 @@ export function PollsCard({ className, ...props }: any) {
 const [error, setError] = useState(false);
 const [open, setOpen] = useState(false);
 const [scoreModal, setScoreModal] = useState(false);
+const [p,setp]=useState([]);
 
 const increaseTeamScore = async (teamName: string, taskId: string,scoreinc:string) => {
   try {
@@ -105,7 +106,6 @@ const increaseTeamScore = async (teamName: string, taskId: string,scoreinc:strin
 
 
 
-
   return (
     <Card className={cn("w-[80vw] mb-[20px]", className)} {...props}>
       <CardHeader>
@@ -144,7 +144,7 @@ const increaseTeamScore = async (teamName: string, taskId: string,scoreinc:strin
 
             <ScoreCard scoreModal={scoreModal} setScoreModal={setScoreModal}></ScoreCard>
 
-            <TaskModal open={open} setOpen={setOpen} team={team}></TaskModal>
+            <TaskModal open={open} setOpen={setOpen} team={team} setP={setp}></TaskModal>
 
             <ScoreCard scoreModal={scoreModal} setScoreModal={setScoreModal} increaseTeamScore={increaseTeamScore} team={team}></ScoreCard>
           

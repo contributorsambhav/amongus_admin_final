@@ -46,37 +46,41 @@ const filteredUsers = teams.filter((team:any) => {
 
 
 const db = getFirestore(firebase_app);
-
 const fetchDataFromFirestore = async () => {
   try {
     setLoading(true);
-    const querySnapshot = await getDocs(collection(db, "Teams"));
-    console.log("querySnapshot", querySnapshot);
-    const temporaryArr:any = [];
+    const teamsCollectionRef = collection(db, "Teams");
+    const teamsQuerySnapshot = await getDocs(teamsCollectionRef);
 
-    querySnapshot.forEach((doc) => {
-      temporaryArr.push(doc.data());
-      console.log("doc.data()", doc.data());
+    const filteredTeams = [];
 
-    });
+    for (const teamDoc of teamsQuerySnapshot.docs) {
+      const teamData = teamDoc.data();
+      const teamId = teamDoc.id;
 
-    // Filter the fetched data to exclude users with a specific userId
-    console.log("temporaryArr", temporaryArr);
-    // const filteredUsers = temporaryArr.filter((:any) => user.id !== parseInt(userId));
+      // Reference to the Players subcollection of the current team
+      const playersCollectionRef = collection(db, "Teams", teamId, "players");
 
-    // Log filtered users (optional)
-    console.log("filteredUsers", temporaryArr);
+      // Query to check if there are any documents in the Players subcollection
+      const playersQuerySnapshot = await getDocs(playersCollectionRef);
 
-    // Set the state (users) with filtered data
-    setTeams(temporaryArr); // Assuming setUsers is a state update function from React useState hook
+      // Check if Players subcollection has any documents
+      if (!playersQuerySnapshot.empty) {
+        filteredTeams.push({ ...teamData, id: teamId }); // Include team data along with its id
+      }
+    }
+
+    // Set the state with filtered teams
+    setTeams(filteredTeams); // Assuming setTeams is a state update function from React useState hook
     setLoading(false);
   } catch (error) {
     console.error("Error fetching data from Firestore:", error);
-    toast.error("Error fetching data from Firestore: " + error);
+    toast.error("Error fetching data from Firestore: " + error.message);
     setLoading(false);
     // Handle error (e.g., show error message to user)
   }
 };
+
 
 useEffect(() => {
   fetchDataFromFirestore();

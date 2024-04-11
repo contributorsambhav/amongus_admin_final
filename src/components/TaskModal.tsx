@@ -13,7 +13,7 @@ import { getFirestore, collection, query, where, getDocs } from "firebase/firest
 import { toast } from 'react-toastify';
 
 const TaskModal = (props:any) => {
-    const {open,setOpen,team}=props
+    const {open,setOpen,team,setP}=props
     console.log("team_L",team)
     const [loading, setLoading] = React.useState(true);
     const [players, setPlayers] = React.useState([]);
@@ -43,6 +43,7 @@ const TaskModal = (props:any) => {
   
           // Update the players state with the fetched players array
           setPlayers(fetchedPlayers);
+          setP(fetchedPlayers)
           // toast.success(`Players in team ${teamName} fetched successfully.`);
         } else {
           console.log(`Team with name ${teamName} not found.`);
